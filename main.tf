@@ -10,7 +10,7 @@ terraform {
 
   backend "azurerm" {
     resource_group_name = "rg-terraform-state"
-    storage_account_name = "joaoterraformstate"
+    storage_account_name = "joaoterraformstate96"
     container_name = "remote-state"
     key = "azure-vm/terraform.tfstate"
   }
@@ -25,7 +25,7 @@ data "terraform_remote_state" "foo" {
   backend = "azurerm"
   config = {
     resource_group_name  = "rg-terraform-state"
-    storage_account_name = "joaoterraformstate"
+    storage_account_name = "joaoterraformstate96"
     container_name       = "remote-state"
     key                  = "azure-vnet/terraform.tfstate"
   }
