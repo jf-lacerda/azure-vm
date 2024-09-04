@@ -1,12 +1,12 @@
 resource "azurerm_resource_group" "resource_group" {
-  name     = "rg-vm"
+  name     = "rg-modulos-remotos-${var.environment}"
   location = "Brazil South"
 
   tags = local.common_tags
 }
 
 resource "azurerm_public_ip" "public_ip" {
-  name                = "public-ip-terraform"
+  name                = "public-ip-${var.environment}"
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = var.location
   allocation_method   = "Dynamic"
@@ -16,13 +16,13 @@ resource "azurerm_public_ip" "public_ip" {
 
 #Network interface
 resource "azurerm_network_interface" "network_interface" {
-  name                = "nic_terraform"
+  name                = "nic-${var.environment}"
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group.name
 
   ip_configuration {
-    name                          = "public-ip-terraform"
-    subnet_id                     = data.terraform_remote_state.vnet.outputs.subnet_id
+    name                          = "public-ip-${var.environment}"
+    subnet_id                     = module.network.vnet_subnets[0]
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.public_ip.id
   }
@@ -32,12 +32,14 @@ resource "azurerm_network_interface" "network_interface" {
 
 resource "azurerm_network_interface_security_group_association" "nisga" {
   network_interface_id      = azurerm_network_interface.network_interface.id
-  network_security_group_id = data.terraform_remote_state.vnet.outputs.security_group_id
+  network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
 # vm
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                  = "vm-terraform"
+  depends_on = [azurerm_network_security_group.nsg]
+
+  name                  = "vm-${var.environment}"
   resource_group_name   = azurerm_resource_group.resource_group.name
   location              = var.location
   size                  = "Standard_B1s"
@@ -60,4 +62,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "22_04-lts"
     version   = "latest"
   }
+  tags = local.common_tags
 }
+
+ 

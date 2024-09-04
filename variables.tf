@@ -3,3 +3,9 @@ variable "location" {
   type        = string
   default     = "Brazil South"
 }
+
+variable "environment" {
+  description = "Ambiebte a que pertencem os recursos criados na Azure"
+  type        = string
+  default     = "desenvolvimento"
+}
